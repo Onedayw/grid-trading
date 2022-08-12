@@ -13,7 +13,7 @@ from api.websocket.websocket_manager import WebsocketManager
 
 
 class FtxWebsocketClient(WebsocketManager):
-    _ENDPOINT = 'wss://ftx.com/ws/'
+    _ENDPOINT = 'wss://ftx.us/ws/'
 
     def __init__(self, api_key=None, api_secret=None) -> None:
         super().__init__()

@@ -7,8 +7,8 @@ import hmac
 from ciso8601 import parse_datetime
 
 
-class FtxClient:
-    _ENDPOINT = 'https://ftx.com/api/'
+class FtxRestClient:
+    _ENDPOINT = 'https://ftx.us/api/'
 
     def __init__(self, api_key=None, api_secret=None, subaccount_name=None) -> None:
         self._session = Session()
@@ -38,11 +38,12 @@ class FtxClient:
         if prepared.body:
             signature_payload += prepared.body
         signature = hmac.new(self._api_secret.encode(), signature_payload, 'sha256').hexdigest()
-        request.headers['FTX-KEY'] = self._api_key
-        request.headers['FTX-SIGN'] = signature
-        request.headers['FTX-TS'] = str(ts)
+
+        request.headers['FTXUS-KEY'] = self._api_key
+        request.headers['FTXUS-SIGN'] = signature
+        request.headers['FTXUS-TS'] = str(ts)
         if self._subaccount_name:
-            request.headers['FTX-SUBACCOUNT'] = urllib.parse.quote(self._subaccount_name)
+            request.headers['FTXUS-SUBACCOUNT'] = urllib.parse.quote(self._subaccount_name)
 
     def _process_response(self, response: Response) -> Any:
         try:
