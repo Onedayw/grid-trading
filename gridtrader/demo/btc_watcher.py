@@ -2,15 +2,24 @@ import time
 import sys
 sys.path.append('../')
 
-from gateway.ftx.ftx_client import FtxWebsocketClient, FtxRestClient
+from gateway.ftx.websocket_client import FtxWebsocketClient
+from gateway.ftx.rest_client import FtxRestClient
 
 if __name__ == '__main__':
-    api_key = 'SXiAWmog3-E35O6O2XkRyT7Y8XDuA5IF2P_wEwO1'
-    api_secret = '_JMA1kJvL7_Px0GyooVGcLldxKhQhuI2l-4Zt4BB'
+    api_key = 'PbjchxaHab7q6HOvsOuFVQ1fPy-UWLdxJjJhIpns'
+    api_secret = 'pvPoQ-TOcvDyoljK1iqm_CJccUt1pl_RjV48GS1d'
+
     # ws = FtxWebsocketClient(api_key, api_secret)
     # ws.connect()
-    # while True:
-    #     print('\n', ws.get_orderbook(market='BTC-PERP'))
-    #     time.sleep(1)
+    # print('\n', ws.get_orderbook(market='ETH/USDT'))
+    # ws.close()
 
-    rest_client =
+
+    rest_client = FtxRestClient(api_key, api_secret)
+    rest_client.place_order(
+        market='ETH/USDT',
+        side='buy',
+        price=1920,
+        type='limit',
+        size=0.01,
+    )
