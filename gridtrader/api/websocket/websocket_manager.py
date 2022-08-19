@@ -29,7 +29,7 @@ class WebsocketManager:
 
         self.ws = WebSocketApp(
             self._get_url(),
-            on_message=self._wrap_callback(self._on_message),
+            on_message=self._on_message,
             on_close=self._wrap_callback(self._on_close),
             on_error=self._wrap_callback(self._on_error),
         )
@@ -57,7 +57,7 @@ class WebsocketManager:
 
     def _run_websocket(self, ws):
         try:
-            ws.run_forever()
+            ws.run_forever(ping_interval=15)
         except Exception as e:
             raise Exception(f'Unexpected error while running websocket: {e}')
         finally:

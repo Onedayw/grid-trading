@@ -1,10 +1,10 @@
+import hmac
 import time
 import urllib.parse
-from typing import Optional, Dict, Any, List
 
-from requests import Request, Session, Response
-import hmac
 from ciso8601 import parse_datetime
+from requests import Request, Session, Response
+from typing import Optional, Dict, Any, List
 
 
 class FtxRestClient:

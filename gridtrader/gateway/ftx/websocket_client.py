@@ -1,3 +1,4 @@
+import heapq
 import hmac
 import json
 import time
@@ -30,6 +31,7 @@ class FtxWebsocketClient(WebsocketManager):
     def _reset_data(self) -> None:
         self._subscriptions: List[Dict] = []
         self._orders: DefaultDict[int, Dict] = defaultdict(dict)
+        self._closed_orders: List[Dict] = []
         self._tickers: DefaultDict[str, Dict] = defaultdict(dict)
         self._orderbook_timestamps: DefaultDict[str, float] = defaultdict(float)
         self._orderbook_update_events.clear()
@@ -82,6 +84,16 @@ class FtxWebsocketClient(WebsocketManager):
         if subscription not in self._subscriptions:
             self._subscribe(subscription)
         return dict(self._orders.copy())
+
+    def get_closed_order(self) -> List[Dict]:
+        if not self._logged_in:
+            self._login()
+        subscription = {'channel': 'orders'}
+        if subscription not in self._subscriptions:
+            self._subscribe(subscription)
+        res = self._closed_orders.copy()
+        self._closed_orders = []
+        return res
 
     def get_trades(self, market: str) -> List[Dict]:
         subscription = {'channel': 'trades', 'market': market}
@@ -164,6 +176,10 @@ class FtxWebsocketClient(WebsocketManager):
     def _handle_orders_message(self, message: Dict) -> None:
         data = message['data']
         self._orders.update({data['id']: data})
+        print(data)
+        if data['status'] == 'closed':
+            print('Received a closed order.')
+            self._closed_orders.append(data)
 
     def _on_message(self, ws, raw_message: str) -> None:
         message = json.loads(raw_message)
@@ -176,6 +192,7 @@ class FtxWebsocketClient(WebsocketManager):
         elif message_type == 'error':
             raise Exception(message)
         channel = message['channel']
+        print(message)
 
         if channel == 'orderbook':
             self._handle_orderbook_message(message)
