@@ -10,7 +10,7 @@ from data_contract.enums import OrderStatus
 from gateway.ftx.rest_client import FtxRestClient
 
 
-class OrderManager:
+class NeutralGridOrderManager:
     def __init__(self, start_price: float, num_of_layers: int, grid_buffer: int,
         grid_interval: float, grid_volume: float, client: FtxRestClient) -> None:
         self.start_price = start_price
