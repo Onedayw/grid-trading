@@ -8,6 +8,7 @@ from termcolor import colored
 from data_contract.order import Order
 from data_contract.enums import OrderStatus
 from gateway.ftx.rest_client import FtxRestClient
+from logger.logger_config import logger
 
 
 class LongGridOrderManager:
@@ -29,7 +30,7 @@ class LongGridOrderManager:
         self.grid_prices_long = [reduce(lambda p, r: p*(1-r), self.grid_region_long[:i], max_price) for i in range(self.num_of_layers + 1)]  # gride prices for long
         self.last_filled_order = None
         self._init_orders(client)
-        print('Order mapping: ' + str(self.order_mapping))
+        logger.info('Order mapping: ' + str(self.order_mapping))
 
     def _init_orders(self, client: FtxRestClient) -> None:
         """
@@ -38,7 +39,7 @@ class LongGridOrderManager:
         self.orders = [None] * (self.num_of_layers + 1)
         self.order_mapping = {}
         layer = self.get_layer_num(self.start_price) - 1
-        print('layer is %d' % layer)
+        logger.info('layer is %d' % layer)
         self.place_buffer_orders(layer)
 
     def _clean_up_order_with_layer(self, layer) -> None:
@@ -74,12 +75,12 @@ class LongGridOrderManager:
                 size=size)
 
             color = 'green' if side == 'buy' else 'red'
-            print(colored('Successfully placed a %s order of %f ETH at $%f.' % (side, size, price), color))
+            logger.info(colored('Successfully placed a %s order of %f ETH at $%f.' % (side, size, price), color))
 
             return Order(response)
         except Exception as e:
             color = 'yellow'
-            print(colored('Failed to place a %s order of %f ETH at $%f due to: %s.' % (side, size, price, e)), color)
+            logger.info(colored('Failed to place a %s order of %f ETH at $%f due to: %s.' % (side, size, price, e)), color)
             return None
 
     def place_buffer_orders(self, layer: int) -> List[int]:
@@ -114,8 +115,8 @@ class LongGridOrderManager:
                 self.order_mapping.update({order.id: buy_layer})
 
         for i in range(1, self.grid_buffer+1):
-            print('layer is %d' % layer)
-            print(self.orders)
+            logger.info('layer is %d' % layer)
+            logger.info(self.orders)
 
             sell_layer, buy_layer = layer - i, layer + i
             if sell_layer >= 0:

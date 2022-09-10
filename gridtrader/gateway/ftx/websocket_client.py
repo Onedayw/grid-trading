@@ -5,6 +5,7 @@ import time
 import zlib
 from collections import defaultdict, deque
 from itertools import zip_longest
+from threading import Lock
 from typing import DefaultDict, Deque, List, Dict, Tuple, Optional
 from gevent.event import Event
 import sys
@@ -23,6 +24,7 @@ class FtxWebsocketClient(WebsocketManager):
         self._api_key = api_key
         self._api_secret = api_secret
         self._orderbook_update_events: DefaultDict[str, Event] = defaultdict(Event)
+        self._lock = Lock()
         self._reset_data()
 
     def _on_open(self, ws):
@@ -91,8 +93,10 @@ class FtxWebsocketClient(WebsocketManager):
         subscription = {'channel': 'orders'}
         if subscription not in self._subscriptions:
             self._subscribe(subscription)
+        self._lock.acquire()
         res = self._closed_orders.copy()
         self._closed_orders = []
+        self._lock.release()
         return res
 
     def get_trades(self, market: str) -> List[Dict]:
@@ -178,8 +182,10 @@ class FtxWebsocketClient(WebsocketManager):
         self._orders.update({data['id']: data})
         print(data)
         if data['status'] == 'closed':
+            self._lock.acquire()
             print('Received a closed order.')
             self._closed_orders.append(data)
+            self._lock.release()
 
     def _on_message(self, ws, raw_message: str) -> None:
         message = json.loads(raw_message)

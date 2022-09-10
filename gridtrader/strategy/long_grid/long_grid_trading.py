@@ -1,11 +1,12 @@
 import sys
 import time
-sys.path.append('../')
+sys.path.append('.../')
 
 from gateway.ftx.websocket_client import FtxWebsocketClient
 from gateway.ftx.rest_client import FtxRestClient
 from termcolor import colored
 from .long_grid_order_manager import LongGridOrderManager
+from logger.logger_config import logger
 
 
 class LongGridTrader:
@@ -15,9 +16,9 @@ class LongGridTrader:
 
         self.websocket_client = FtxWebsocketClient(api_key, api_secret)
         self.websocket_client.connect()
-        print(self.websocket_client.get_orders())
+        logger.info(f'{self.websocket_client.get_orders()}')
 
-        print("Grid trading starts, start price: %f, grid prices for long:%s" % (
+        logger.info("Grid trading starts, start price: %f, grid prices for long:%s" % (
             self.order_manager.start_price,
             self.order_manager.grid_prices_long))
 
@@ -28,7 +29,7 @@ class LongGridTrader:
             if closed_orders:
                 # TODO: handle multiple closed orders case
                 layer = self.order_manager.order_mapping.get(closed_orders[-1]['id'], None)
-                print('closed order layer is %d.' % (layer))
+                logger.info('closed order layer is %d.' % (layer))
                 if layer != None:
                     self.order_manager.place_buffer_orders(layer)
             #time.sleep(1)
