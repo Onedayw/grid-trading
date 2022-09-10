@@ -16,7 +16,6 @@ class LongGridTrader:
 
         self.websocket_client = FtxWebsocketClient(api_key, api_secret)
         self.websocket_client.connect()
-        logger.info(f'{self.websocket_client.get_orders()}')
 
         logger.info("Grid trading starts, start price: %f, grid prices for long:%s" % (
             self.order_manager.start_price,

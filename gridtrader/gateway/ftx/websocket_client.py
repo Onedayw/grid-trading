@@ -8,6 +8,7 @@ from itertools import zip_longest
 from threading import Lock
 from typing import DefaultDict, Deque, List, Dict, Tuple, Optional
 from gevent.event import Event
+from logger.logger_config import logger
 import sys
 sys.path.append('.../')
 
@@ -180,10 +181,12 @@ class FtxWebsocketClient(WebsocketManager):
     def _handle_orders_message(self, message: Dict) -> None:
         data = message['data']
         self._orders.update({data['id']: data})
-        print(data)
         if data['status'] == 'closed':
             self._lock.acquire()
-            print('Received a closed order.')
+            logger.info('Received a closed order at %f. with id %d' % (
+                message['data']['price'],
+                message['data']['id']
+            ))
             self._closed_orders.append(data)
             self._lock.release()
 
@@ -198,7 +201,6 @@ class FtxWebsocketClient(WebsocketManager):
         elif message_type == 'error':
             raise Exception(message)
         channel = message['channel']
-        print(message)
 
         if channel == 'orderbook':
             self._handle_orderbook_message(message)
