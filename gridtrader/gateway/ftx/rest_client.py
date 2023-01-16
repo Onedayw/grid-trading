@@ -192,8 +192,8 @@ class FtxRestClient:
     def get_balances(self) -> List[dict]:
         return self._get('wallet/balances')
 
-    def get_total_usd_balance(self) -> int:
-        total_usd = 0
+    def get_total_usd_balance(self) -> float:
+        total_usd = 0.0
         balances = self._get('wallet/balances')
         for balance in balances:
             total_usd += balance['usdValue']
@@ -202,8 +202,8 @@ class FtxRestClient:
     def get_all_balances(self) -> List[dict]:
         return self._get('wallet/all_balances')
 
-    def get_total_account_usd_balance(self) -> int:
-        total_usd = 0
+    def get_total_account_usd_balance(self) -> float:
+        total_usd = 0.0
         all_balances = self._get('wallet/all_balances')
         for wallet in all_balances:
             for balance in all_balances[wallet]:
