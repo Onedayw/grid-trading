@@ -12,3 +12,7 @@ class OrderStatus(Enum):
     NEW = 0
     OPEN = 1
     CLOSED = 2
+
+class Platform(Enum):
+    BINANCE = 0
+    FTX = 1

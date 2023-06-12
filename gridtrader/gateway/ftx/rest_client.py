@@ -1,13 +1,16 @@
 import hmac
 import time
 import urllib.parse
+import sys
+sys.path.append('.../')
 
 from ciso8601 import parse_datetime
 from requests import Request, Session, Response
 from typing import Optional, Dict, Any, List
+from gateway.rest_client import RestClient
 
 
-class FtxRestClient:
+class FtxRestClient(RestClient):
     _ENDPOINT = 'https://ftx.us/api/'
 
     def __init__(self, api_key=None, api_secret=None, subaccount_name=None) -> None:

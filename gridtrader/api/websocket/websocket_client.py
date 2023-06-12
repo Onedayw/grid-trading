@@ -4,8 +4,9 @@ from threading import Thread, Lock
 from websocket import WebSocketApp
 
 
-class WebsocketManager:
+class WebsocketClient:
     _CONNECT_TIMEOUT_S = 5
+    _ENDPOINT = 'wss://'
 
     def __init__(self):
         self.connect_lock = Lock()

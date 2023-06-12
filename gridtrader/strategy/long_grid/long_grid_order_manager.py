@@ -7,13 +7,13 @@ from termcolor import colored
 
 from data_contract.order import Order
 from data_contract.enums import OrderStatus
-from gateway.ftx.rest_client import FtxRestClient
+from gateway.rest_client import RestClient
 from logger.logger_config import logger
 
 
 class LongGridOrderManager:
     def __init__(self, start_price: float, num_of_layers: int, grid_buffer: int,
-        grid_interval: float, grid_volume: float, client: FtxRestClient) -> None:
+        grid_interval: float, grid_volume: float, client: RestClient) -> None:
         self.start_price = start_price
         self.num_of_layers = num_of_layers
         self.grid_buffer = grid_buffer
@@ -31,7 +31,7 @@ class LongGridOrderManager:
         self.last_filled_order = None
         self._init_orders(client)
 
-    def _init_orders(self, client: FtxRestClient) -> None:
+    def _init_orders(self, client: RestClient) -> None:
         """
         Place initial limit orders
         """
@@ -60,7 +60,7 @@ class LongGridOrderManager:
 
         return self.num_of_layers + 1
 
-    def place_order(self, client: FtxRestClient, market: str, side: str, price: float, type: str, size: float) -> Order:
+    def place_order(self, client: RestClient, market: str, side: str, price: float, type: str, size: float) -> Order:
         """
         Wrapper place order method
         """

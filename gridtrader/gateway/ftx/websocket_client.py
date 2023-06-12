@@ -12,13 +12,13 @@ from logger.logger_config import logger
 import sys
 sys.path.append('.../')
 
-from api.websocket.websocket_manager import WebsocketManager
+from api.websocket.websocket_client import WebsocketClient
 
 
-class FtxWebsocketClient(WebsocketManager):
+class FtxWebsocketClient(WebsocketClient):
     _ENDPOINT = 'wss://ftx.us/ws/'
 
-    def __init__(self, api_key=None, api_secret=None) -> None:
+    def __init__(self, api_key: str = None, api_secret: str = None) -> None:
         super().__init__()
         self._trades: DefaultDict[str, Deque] = defaultdict(lambda: deque([], maxlen=10000))
         self._fills: Deque = deque([], maxlen=10000)
