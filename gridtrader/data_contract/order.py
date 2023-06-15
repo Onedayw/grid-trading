@@ -1,3 +1,4 @@
+import backtrader as bt
 import datetime
 import pandas
 import time
@@ -42,5 +43,25 @@ class Order:
         self.ioc = data['ioc']
         self.post_only = data['postOnly']
 
-    # def __getitem__(self, key):
-    #     return self._vet[key]
+    def __init__(self, data: bt.OrderBase) -> None:
+        self.id = data.ref
+        self.market = 'BT'
+        self.type = OrderType.LIMIT if data.exectype == bt.Order.Limit else OrderType.MARKET
+        self.side = OrderSide.BUY if data.isbuy() else OrderSide.SELL
+        self.price = data.price
+        self.size = data.size
+        # TODO: handle partially filled Backtest order
+        # self.filled_size = data['filledSize']
+        # self.remaining_size = data['remainingSize']
+        # self.average_fill_size = data['avgFillPrice']
+        order_status = {
+            'Created': OrderStatus.NEW,
+            'Submitted': OrderStatus.NEW,
+            'Accepted': OrderStatus.OPEN,
+            'Partial': OrderStatus.OPEN,
+            'Complete': OrderStatus.CLOSED,
+            'Rejected': OrderStatus.CLOSED,
+            'Cancelled': OrderStatus.CLOSED
+            }
+        self.status = order_status[data.getstatusname()]
+

@@ -16,3 +16,29 @@ class BinanceWebsocketClient(WebsocketClient):
         self._orderbook_update_events: DefaultDict[str, Event] = defaultdict(Event)
         self._lock = Lock()
         self._reset_data()
+
+    def _on_open(self, ws):
+        self._reset_data()
+    
+    def _reset_data(self) -> None:
+        self._subscriptions: List[Dict] = []
+        self._orders: DefaultDict[int, Dict] = defaultdict(dict)
+        self._closed_orders: List[Dict] = []
+        self._tickers: DefaultDict[str, Dict] = defaultdict(dict)
+        self._orderbook_timestamps: DefaultDict[str, float] = defaultdict(float)
+        self._orderbook_update_events.clear()
+        self._orderbooks: DefaultDict[str, Dict[str, DefaultDict[float, float]]] = defaultdict(
+            lambda: {side: defaultdict(float) for side in {'bids', 'asks'}})
+        self._orderbook_timestamps.clear()
+        self._logged_in = False
+        self._last_received_orderbook_data_at: float = 0.0
+
+    
+    def _subscribe(self, subscription: Dict) -> None:
+        self.send_json({'method': 'SUBSCRIBE', **subscription})
+        self._subscriptions.append(subscription)
+    
+    def _unsubscribe(self, subscription: Dict) -> None:
+        self.send_json({'method': 'UNSUBSCRIBE', **subscription})
+        while subscription in self._subscriptions:
+            self._subscriptions.remove(subscription)

@@ -7,19 +7,19 @@ from termcolor import colored
 
 from data_contract.order import Order
 from data_contract.enums import OrderStatus
-from gateway.rest_client import RestClient
 from logger.logger_config import logger
 
 
 class LongGridOrderManager:
-    def __init__(self, start_price: float, num_of_layers: int, grid_buffer: int,
-        grid_interval: float, grid_volume: float, client: RestClient) -> None:
+    def __init__(self, symbol: str, start_price: float, num_of_layers: int, grid_buffer: int,
+        grid_interval: float, grid_volume: float, cb) -> None:
+        self.symbol = symbol
         self.start_price = start_price
         self.num_of_layers = num_of_layers
         self.grid_buffer = grid_buffer
         self.grid_interval = grid_interval
         self.grid_volume = grid_volume
-        self.client = client
+        self.place_order_cb = cb
 
         self.grid_region_long = [self.grid_interval] * self.num_of_layers  # price intervals for long (grid density)
 
@@ -29,16 +29,16 @@ class LongGridOrderManager:
 
         self.grid_prices_long = [reduce(lambda p, r: p*(1-r), self.grid_region_long[:i], max_price) for i in range(self.num_of_layers + 1)]  # gride prices for long
         self.last_filled_order = None
-        self._init_orders(client)
+        self._init_orders()
 
-    def _init_orders(self, client: RestClient) -> None:
+    def _init_orders(self) -> None:
         """
         Place initial limit orders
         """
         self.orders = [None] * (self.num_of_layers + 1)
         self.order_mapping = {}
         layer = self.get_layer_num(self.start_price) - 1
-        self.place_buffer_orders(layer)
+        self.place_buffer_orders(self.symbol, layer)
 
     def _clean_up_order_with_layer(self, layer) -> None:
         if self.orders[layer]:
@@ -60,28 +60,28 @@ class LongGridOrderManager:
 
         return self.num_of_layers + 1
 
-    def place_order(self, client: RestClient, market: str, side: str, price: float, type: str, size: float) -> Order:
+    def place_order(self, symbol: str, side: str, price: float, type: str, size: float) -> Order:
         """
         Wrapper place order method
         """
         try:
-            response = client.place_order(
-                market=market,
+            response = self.place_order_cb(
+                market=symbol,
                 side=side,
                 price=price,
                 type=type,
                 size=size)
 
             color = 'green' if side == 'buy' else 'red'
-            logger.info('Successfully placed a %s order of %f ETH at $%f.' % (side, size, price))
+            logger.info('Successfully placed a %s order of %f %s at $%f.' % (side, size, symbol, price))
 
             return Order(response)
         except Exception as e:
             color = 'yellow'
-            logger.info('Failed to place a %s order of %f ETH at $%f due to: %s.' % (side, size, price, e))
+            logger.info('Failed to place a %s order of %f %s at $%f due to: %s.' % (side, size, symbol, price, e))
             return None
 
-    def place_buffer_orders(self, layer: int) -> List[int]:
+    def place_buffer_orders(self, symbol: str, layer: int) -> List[int]:
         """
         Update orders
         """
@@ -90,8 +90,7 @@ class LongGridOrderManager:
 
         def place_sell_order(sell_layer):
             order = self.place_order(
-                self.client,
-                'ETH/USDT',
+                symbol,
                 'sell',
                 self.grid_prices_long[sell_layer],
                 'limit',
@@ -102,8 +101,7 @@ class LongGridOrderManager:
 
         def place_buy_order(buy_layer):
             order = self.place_order(
-                self.client,
-                'ETH/USDT',
+                symbol,
                 'buy',
                 self.grid_prices_long[buy_layer],
                 'limit',
