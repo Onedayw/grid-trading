@@ -3,3 +3,4 @@ ftx_demo.py
 tutorial-env
 *.log
 *.csv
+.DS_Store
