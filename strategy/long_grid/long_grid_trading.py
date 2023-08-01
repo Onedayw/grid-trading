@@ -2,6 +2,8 @@ import sys
 import time
 sys.path.append('.../')
 
+from binance import Client, ThreadedWebsocketManager, ThreadedDepthCacheManager
+
 from gateway.ftx.websocket_client import FtxWebsocketClient
 from gateway.ftx.rest_client import FtxRestClient
 from termcolor import colored
@@ -14,19 +16,31 @@ from logger.logger_config import logger
 class LongGridTrader():
     def __init__(self, symbol: str, start_price: float, num_of_grids: int, grid_interval: float, grid_volume: float, api_key: str=None, api_secret: str=None) -> None:
         # TODO: Use factory pattern to instantiate a rest client
-        self.rest_client = FtxRestClient(api_key, api_secret)
-        self.order_manager = LongGridOrderManager(symbol, start_price, num_of_grids, 3, grid_interval, grid_volume, self.rest_client)
-        start_balance = self.rest_client.get_total_account_usd_balance()
-        self.stat_manager = StatManager(start_balance)
+        self.client = Client(api_key=api_key, api_secret=api_secret)
 
-        self.websocket_client = FtxWebsocketClient(api_key, api_secret)
-        self.websocket_client.connect()
+        #self.rest_client = FtxRestClient(api_key, api_secret)
+        self.order_manager = LongGridOrderManager(symbol, start_price, num_of_grids, 3, grid_interval, grid_volume, self.client.create_order)
+        #start_balance = self.rest_client.get_total_account_usd_balance()
+        #self.stat_manager = StatManager(start_balance)
+
+        #self.websocket_client = FtxWebsocketClient(api_key, api_secret)
+        #self.websocket_client.connect()
+
+        self.websocket_client = ThreadedWebsocketManager(api_key=api_key, api_secret=api_secret)
+        self.websocket_client.start()
 
         logger.info("Grid trading starts, start price: %f, grid prices for long:%s" % (
             self.order_manager.start_price,
             self.order_manager.grid_prices_long))
+
+        def handle_socket_message(msg):
+            #if msg['e'] == 'executionReport':
+            print(f"message type: {msg['e']}")
+            print(msg)
         
-    def run(self, number_of_layers: int) -> None:
+        self.websocket_client.start_user_socket(callback=handle_socket_message)
+        
+    def run(self) -> None:
         while True:
             closed_orders = self.websocket_client.get_closed_order()
 

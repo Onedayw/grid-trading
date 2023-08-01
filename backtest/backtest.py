@@ -9,7 +9,9 @@ import logging
 import pandas as pd
 import quantstats
 
-from datetime import datetime, timedelta
+from backtrader_plotting import Bokeh, OptBrowser
+from backtrader_plotting.schemes import Tradimo
+from datetime import datetime, date, timedelta
 from logger.logger_config import logger
 from strategy.long_grid.long_gird_strategy import LongGridStrategy
 
@@ -37,7 +39,7 @@ if __name__ == '__main__':
     
     # Datas are in a subfolder of the samples. Need to find where the script is
     # because it could have been called from anywhere
-    symbol_pair = 'LEVER-USDT'
+    symbol_pair = 'ETH-USDT'
     filename = symbol_pair + '.csv'
     modpath = os.path.dirname(os.path.abspath(sys.argv[0]))
     datapath = os.path.join(modpath, '../data/', filename)
@@ -52,34 +54,35 @@ if __name__ == '__main__':
 
     data = bt.feeds.PandasData(
         dataname=dataframe,
-        fromdate=datetime.now() - timedelta(days=365),
+        fromdate=date(2023, 6, 15) - timedelta(days=365),
         openinterest=-1
     )
 
-    cerebro.adddata(data)
+    cerebro.adddata(data, name=symbol_pair)
     cerebro.addstrategy(
         LongGridStrategy,
         symbol=symbol_pair,
-        start_price=0.0015,
+        start_price=1208,
         num_of_layers=100,
         grid_buffer=10,
         grid_interval=0.01,
-        grid_volume=100000)
-    cerebro.addanalyzer(bt.analyzers.PyFolio, _name='PyFolio')
+        grid_volume=1)
+    #cerebro.addanalyzer(bt.analyzers.PyFolio, _name='PyFolio')
+    cerebro.addanalyzer(bt.analyzers.SharpeRatio)
 
-    cerebro.broker.set_cash(1000000)
-    cerebro.broker.setcommission(commission=0.00014, leverage=3.0)
+    cerebro.broker.set_cash(100000)
+    #cerebro.broker.setcommission(commission=0.00014, leverage=3.0)
 
     logger.info('Starting Portfolio Value: %.2f' % cerebro.broker.getvalue())
 
-    results = cerebro.run()
+    results = cerebro.run(optreturn=True)
 
     logger.info('Final Portfolio Value: %.2f' % cerebro.broker.getvalue())
 
-    strat = results[0]
-    portfolio_stats = strat.analyzers.getbyname('PyFolio')
-    returns, positions, transactions, gross_lev = portfolio_stats.get_pf_items()
-    returns.index = returns.index.tz_convert(None)
+    # strat = results[0]
+    # portfolio_stats = strat.analyzers.getbyname('PyFolio')
+    # returns, positions, transactions, gross_lev = portfolio_stats.get_pf_items()
+    # returns.index = returns.index.tz_convert(None)
 
     # Generate a html page for stats
     # quantstats.reports.html(
@@ -88,4 +91,7 @@ if __name__ == '__main__':
     #     title='%s Grid Trading (%s - %s)' % (symbol_pair, start_date.date(), end_date.date()))
 
     # Generate an interactive graph
-    cerebro.plot()
+
+    b = Bokeh(style='bar', scheme=Tradimo())
+    browser = OptBrowser(b, results)
+    browser.start()

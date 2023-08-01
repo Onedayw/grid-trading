@@ -27,6 +27,7 @@ class LongGridOrderManager:
             max_price = max_price / (1 - self.grid_region_long[i])
 
         self.grid_prices_long = [reduce(lambda p, r: p*(1-r), self.grid_region_long[:i], max_price) for i in range(self.num_of_layers + 1)]  # gride prices for long
+        print(self.grid_prices_long)
         self.last_filled_order = None
         self._init_orders()
 
@@ -65,11 +66,11 @@ class LongGridOrderManager:
         """
         try:
             response = self.place_order_cb(
-                market=symbol,
+                symbol=symbol,
                 side=side,
                 price=price,
                 type=type,
-                size=size)
+                quantity=size)
 
             color = 'green' if side == 'buy' else 'red'
             logger.info('Successfully placed a %s order of %f %s at $%f.' % (side, size, symbol, price))

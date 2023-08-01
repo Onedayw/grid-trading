@@ -12,7 +12,7 @@ from logger.logger_config import logger
 import sys
 sys.path.append('.../')
 
-from api.websocket.websocket_client import WebsocketClient
+from gateway.websocket_client import WebsocketClient
 
 
 class FtxWebsocketClient(WebsocketClient):
