@@ -11,7 +11,7 @@ if __name__ == '__main__':
 
     gt = LongGridTrader(
         symbol='ETHUSDT',
-        start_price=1850,
+        start_price=3150,
         num_of_grids=20,
         grid_interval=0.01,
         grid_volume=0.005,

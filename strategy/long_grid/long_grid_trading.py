@@ -18,7 +18,6 @@ class LongGridTrader():
         # TODO: Use factory pattern to instantiate a rest client
         self.client = Client(api_key=api_key, api_secret=api_secret)
 
-        #self.rest_client = FtxRestClient(api_key, api_secret)
         self.order_manager = LongGridOrderManager(symbol, start_price, num_of_grids, 3, grid_interval, grid_volume, self.client.create_order)
         #start_balance = self.rest_client.get_total_account_usd_balance()
         #self.stat_manager = StatManager(start_balance)

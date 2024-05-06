@@ -1,0 +1,8 @@
+pip3 install python-binance
+pip3 install requests
+pip3 install gevent
+pip3 install websocket-client
+pip3 install ciso8601
+pip3 install termcolor
+pip3 install backtrader
+pip3 install pandas
