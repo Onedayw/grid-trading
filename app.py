@@ -4,9 +4,13 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
+# Access environment variables
+app.config['ENV'] = os.getenv('FLASK_ENV', 'development')
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'default_secret_key')
+
 @app.route('/')
 def hello_world():
-    return '<p>Hello, World!<p>'
+    return f"Hello, Azure! Running in {app.config['ENV']} mode."
 
 @app.route('/api', methods=['POST'])
 def api():
