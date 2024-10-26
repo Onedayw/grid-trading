@@ -3,6 +3,10 @@ import logging
 
 app = func.FunctionApp(http_auth_level=func.AuthLevel.ADMIN)
 
+# Access environment variables
+API_KEY = os.getenv('BINANCE_API_KEY', 'default_api_key')
+API_SECRET = os.getenv('BINANCE_API_SECRET', 'default_secret_key')
+
 @app.route(route="initStrategy")
 def initStrategy(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('Python HTTP trigger function processed a request.')
@@ -30,7 +34,7 @@ def test(req: func.HttpRequest) -> func.HttpResponse:
 
     from binance.um_futures import UMFutures
 
-    client = UMFutures(key=api_key, secret=api_secret)
+    client = UMFutures(key=API_KEY, secret=API_SECRET)
 
     # get server time
     print(client.time())
