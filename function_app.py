@@ -23,3 +23,38 @@ def initStrategy(req: func.HttpRequest) -> func.HttpResponse:
              "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response.",
              status_code=200
         )
+
+@app.route(route="test")
+def test(req: func.HttpRequest) -> func.HttpResponse:
+    logging.info("This is a test route.")
+
+    from binance.um_futures import UMFutures
+
+    client = UMFutures(key=api_key, secret=api_secret)
+
+    # get server time
+    print(client.time())
+
+    # Get account information
+    # print(cm_futures_client.account())
+
+    # Post a new order
+    params = {
+        'symbol': 'DOGEUSDT',
+        'side': 'BUY',
+        'type': 'LIMIT',
+        'timeInForce': 'GTC',
+        'quantity': 50,
+        'price': 0.120
+    }
+
+    try:
+        response = client.new_order(**params)
+        logging.info(response)
+
+        if response.status_code == 200:
+            return func.HttpResponse("Order placed successfully.")
+        else:
+            return func.HttpResponse("Error code: {response.status_code}, message: {response.text}, headers: {response.headers}")
+    except Exception as e:
+        return func.HttpResponse(f"Error: {e}")

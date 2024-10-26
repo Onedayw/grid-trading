@@ -4,3 +4,4 @@
 
 azure-functions
 flask_cors==4.0.1
+binance-futures-connector==4.0.1
