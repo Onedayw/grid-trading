@@ -1,5 +1,6 @@
 import azure.functions as func
 import logging
+import os
 
 app = func.FunctionApp(http_auth_level=func.AuthLevel.ADMIN)
 
