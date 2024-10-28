@@ -1,4 +1,3 @@
-import heapq
 import hmac
 import json
 import time
