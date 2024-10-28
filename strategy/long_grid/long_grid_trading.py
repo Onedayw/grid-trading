@@ -1,12 +1,9 @@
 import sys
-import time
 sys.path.append('.../')
 
-from binance import Client, ThreadedWebsocketManager, ThreadedDepthCacheManager
-
-from gateway.ftx.websocket_client import FtxWebsocketClient
-from gateway.ftx.rest_client import FtxRestClient
-from termcolor import colored
+from data_contract.enums import Platform
+from gateway.client_factory import ClientFactory
+from gateway.websocket_client import WebsocketClient
 from .long_grid_order_manager import LongGridOrderManager
 from analytics.stat_manager import StatManager
 from data_contract.order import Order
@@ -14,16 +11,12 @@ from logger.logger_config import logger
 
 
 class LongGridTrader():
-    def __init__(self, symbol: str, start_price: float, num_of_grids: int, grid_interval: float, grid_volume: float, api_key: str=None, api_secret: str=None) -> None:
-        # TODO: Use factory pattern to instantiate a rest client
-        self.client = Client(api_key=api_key, api_secret=api_secret)
+    def __init__(self, platform: Platform, symbol: str, start_price: float, num_of_grids: int, grid_interval: float, grid_volume: float) -> None:
+        self.rest_client = ClientFactory.get_rest_client(platform)
+        self.websocket_client = ClientFactory.get_websocket_client(platform)
 
         self.order_manager = LongGridOrderManager(symbol, start_price, num_of_grids, 3, grid_interval, grid_volume, self.client.create_order)
-        #start_balance = self.rest_client.get_total_account_usd_balance()
-        #self.stat_manager = StatManager(start_balance)
 
-        #self.websocket_client = FtxWebsocketClient(api_key, api_secret)
-        #self.websocket_client.connect()
 
         self.websocket_client = ThreadedWebsocketManager(api_key=api_key, api_secret=api_secret)
         self.websocket_client.start()
@@ -40,6 +33,8 @@ class LongGridTrader():
         self.websocket_client.start_user_socket(callback=handle_socket_message)
         
     def run(self) -> None:
+        '''
+        # Strategy for moving upper and lower grid boundaries
         while True:
             closed_orders = self.websocket_client.get_closed_order()
 
@@ -56,5 +51,10 @@ class LongGridTrader():
                 logger.info('Market gain is %f.' % (total_profit - grid_profit))
                 if layer != None:
                     self.order_manager.place_buffer_orders(layer)
-            #time.sleep(1)
+            time.sleep(1)
+        '''
+
+        # Strategy for fixed upper and lower grid boundaries
+        while True:
+
             

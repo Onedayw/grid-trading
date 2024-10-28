@@ -14,5 +14,7 @@ class OrderStatus(Enum):
     CLOSED = 2
 
 class Platform(Enum):
-    BINANCE = 0
-    FTX = 1
+    FTX = 0
+    BINANCE_SPOT = 1
+    BINANCE_FUTURES = 2
+    BINANCE_PROFOLIO = 3
