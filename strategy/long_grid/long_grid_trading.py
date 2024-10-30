@@ -3,7 +3,6 @@ sys.path.append('.../')
 
 from data_contract.enums import Platform
 from gateway.client_factory import ClientFactory
-from gateway.websocket_client import WebsocketClient
 from .long_grid_order_manager import LongGridOrderManager
 from analytics.stat_manager import StatManager
 from data_contract.order import Order
@@ -15,11 +14,9 @@ class LongGridTrader():
         self.rest_client = ClientFactory.get_rest_client(platform)
         self.websocket_client = ClientFactory.get_websocket_client(platform)
 
-        self.order_manager = LongGridOrderManager(symbol, start_price, num_of_grids, 3, grid_interval, grid_volume, self.client.create_order)
+        self.order_manager = LongGridOrderManager(symbol, start_price, num_of_grids, 3, grid_interval, grid_volume, self.rest_client.place_order)
 
-
-        self.websocket_client = ThreadedWebsocketManager(api_key=api_key, api_secret=api_secret)
-        self.websocket_client.start()
+        self.websocket_client.connect()
 
         logger.info("Grid trading starts, start price: %f, grid prices for long:%s" % (
             self.order_manager.start_price,
@@ -56,5 +53,5 @@ class LongGridTrader():
 
         # Strategy for fixed upper and lower grid boundaries
         while True:
-
+            pass
             

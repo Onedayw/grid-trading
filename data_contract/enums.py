@@ -1,12 +1,12 @@
 from enum import Enum
 
 class OrderType(Enum):
-    LIMIT = 0
-    MARKET = 1
+    LIMIT = "LIMIT"
+    MARKET = "MARKET"
 
 class OrderSide(Enum):
-    BUY = 0
-    SELL = 1
+    BUY = "BUY"
+    SELL = "SELL"
 
 class OrderStatus(Enum):
     NEW = 0

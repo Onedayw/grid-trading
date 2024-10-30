@@ -5,14 +5,6 @@ class RestClient(ABC):
     _ENDPOINT = "https://"
 
     @abstractmethod
-    def get_all_futures(self) -> List[dict]:
-        pass
-
-    @abstractmethod
-    def get_future(self, future_name: str = None) -> dict:
-        pass
-
-    @abstractmethod
     def get_markets(self) -> List[dict]:
         pass
 
@@ -54,13 +46,11 @@ class RestClient(ABC):
         pass
 
     @abstractmethod
-    def cancel_order(self, order_id: str) -> dict:
+    def cancel_order(self, market: str, order_id: int = None) -> dict:
         pass
 
     @abstractmethod
-    def cancel_orders(
-        self, market_name: str = None,
-        conditional_orders: bool = False, limit_orders: bool = False) -> dict:
+    def cancel_orders(self, market: str) -> dict:
         pass
 
     @abstractmethod
