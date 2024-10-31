@@ -88,42 +88,43 @@ class LongGridOrderManager:
         # Clean up order on currrent layer
         self._clean_up_order_with_layer(layer)
 
-        def place_sell_order(sell_layer):
-            order = self.place_order(
-                symbol,
-                'sell',
-                self.grid_prices_long[sell_layer],
-                'limit',
-                self.grid_volume)
-            self.orders[sell_layer] = order
-            if order:
-                self.order_mapping.update({order.id: sell_layer})
-
-        def place_buy_order(buy_layer):
-            order = self.place_order(
-                symbol,
-                'buy',
-                self.grid_prices_long[buy_layer],
-                'limit',
-                self.grid_volume)
-            self.orders[buy_layer] = order
-            if order:
-                self.order_mapping.update({order.id: buy_layer})
-
         for i in range(1, self.grid_buffer+1):
             sell_layer, buy_layer = layer - i, layer + i
             if sell_layer >= 0:
                 if self.orders[sell_layer]:
                     if self.orders[sell_layer].status == OrderStatus.CLOSED:
                         self.order_mapping.pop(self.orders[sell_layer].id)
-                        place_sell_order(sell_layer)
+                        self.place_sell_order(sell_layer)
 
                 else:
-                    place_sell_order(sell_layer)
+                    self.place_sell_order(sell_layer)
             if buy_layer <= self.num_of_layers:
                 if self.orders[buy_layer]:
                     if self.orders[buy_layer].status == OrderStatus.CLOSED:
                         self.order_mapping.pop(self.orders[buy_layer].id)
-                        place_buy_order(buy_layer)
+                        self.place_buy_order(buy_layer)
                 else:
-                    place_buy_order(buy_layer)
+                    self.place_buy_order(buy_layer)
+
+
+    def place_sell_order(self, sell_layer):
+        order = self.place_order(
+            self.symbol,
+            'sell',
+            self.grid_prices_long[sell_layer],
+            'limit',
+            self.grid_volume)
+        self.orders[sell_layer] = order
+        if order:
+            self.order_mapping.update({order.id: sell_layer})
+
+    def place_buy_order(self, buy_layer):
+        order = self.place_order(
+            self.symbol,
+            'buy',
+            self.grid_prices_long[buy_layer],
+            'limit',
+            self.grid_volume)
+        self.orders[buy_layer] = order
+        if order:
+            self.order_mapping.update({order.id: buy_layer})

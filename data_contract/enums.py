@@ -9,9 +9,14 @@ class OrderSide(Enum):
     SELL = "SELL"
 
 class OrderStatus(Enum):
-    NEW = 0
-    OPEN = 1
-    CLOSED = 2
+    NEW = "NEW"
+    PARTIALLY_FILLED = "PARTIALLY_FILLED"
+    FILLED = "FILLED"
+    CANCELED = "CANCELED"
+    PENDING_CANCEL = "PENDING_CANCEL"
+    REJECTED = "REJECTED"
+    EXPIRED = "EXPIRED"
+    EXPIRED_IN_MATCH = "EXPIRED_IN_MATCH"
 
 class Platform(Enum):
     FTX = 0

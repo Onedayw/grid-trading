@@ -29,14 +29,14 @@ class ClientFactory:
             return FtxRestClient(api_key, api_secret)
 
     @staticmethod
-    def get_websocket_client(platform: Platform = Platform.FTX) -> WebsocketClient:
+    def get_websocket_client(on_message_cb, platform: Platform = Platform.FTX) -> WebsocketClient:
         assert os.environ.get('API_KEY')
         assert os.environ.get('API_SECRET')
 
         api_key, api_secret = os.environ.get('API_KEY'), os.environ.get('API_SECRET')
 
         if platform == Platform.BINANCE_SPOT:
-            return BinanceSpotWebsocketClient(api_key, api_secret)
+            return BinanceSpotWebsocketClient(on_message_cb, api_key, api_secret)
         elif platform == Platform.BINANCE_FUTURES:
             return BinanceFuturesWebsocketClient(api_key, api_secret)
         else:
